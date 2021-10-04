@@ -8,3 +8,5 @@ This repository contains all my contributions to the #TidyTuesday. Tidytuesday i
 **NBER Papers**
 
 Contains information about papers published by the National Bureau of Economic Research between 1973 and 2021. I have seen a lot of barplot races on the internet and for this one, I tried creating one myself for the first time. It shows the number of publications an author has contributed to over the last decades.
+
+![Gif from TidyTuesday 2021-09-28](2021-09-28/NBER_barbplotrace.gif)
