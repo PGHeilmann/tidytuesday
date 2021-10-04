@@ -37,17 +37,18 @@ joined_df <- joined_df %>%
 
 # Color blind friendly color scheme
 # Every author gets a color
-colors <- brewer.pal(n =9, name = "Dark2")
+colors <- brewer.pal(n =12, name = "Paired")  # Colorblind-friendly
 n.names <- length(unique(joined_df$name))
-set.seed(10)
-col.idx <- sample(1:8,n.names,replace = T)
+set.seed(123)
+colors <- colors[-11]                         # Yellow remove because it is hard to see on white bg
+col.idx <- sample(1:11,n.names,replace = T)
 
 
 # This data frame will be used in the loop for every unique year:month combination
 # DFs will be added to a list to create a uniform data structure for every combination
 df <- data.frame(name = sort(unique(joined_df$name)), # Author names
                  year = NA,                           # Year:month
-                 cumsum = 0,                          # Sum of paper untill this month
+                 cumsum = 0,                          # Sum of paper until this month
                  order = 1:n.names,                   # Rank in published papers
                  c_alph = colors[col.idx])            # Colors (never change)
 
@@ -71,37 +72,62 @@ for (i in 1:length(levels(joined_df$Y_M))) {
   }
   
   df_temp <- df                         
-  df_temp <- df_temp[df$order <= 10, ]  # Only keep top 10 authors
+  df_temp <- df_temp[df$order <= 15, ]  # Only keep top 10 authors
   
   all_list[[i]] <- df_temp
 }
 
+# Bind all DFs together
 df.full <- do.call(rbind, all_list)
+# Correct sorting of year:month
 df.full$year <- factor(df.full$year, levels = unique(df.full$year))
-
+# Create new column with year only for display
 df.full <- df.full %>% separate(year, into = c(NA,"year_num"), sep = " ",remove = F)
 
-t <- df.full %>% 
-  ggplot(aes(y = order, x = cumsum, fill = c_alph, color = c_alph)) + 
-  scale_fill_identity() + scale_color_identity() +
-  geom_colh(alpha = .8) +
-  coord_cartesian( clip = "off") +
-  labs(x = "Published Articles", y = "", title = "Hall of Fame: Most Publications of All Time") + guides(fill = "none", color = "none") +
-  geom_text(aes(cumsum, order, label = as.character(cumsum)), hjust=-0.2) +
-  geom_text(aes(0, order, label = name),   hjust=1.1) + 
-  theme(plot.title = element_text( size = 16, face = "bold"),
-        panel.background = element_rect(fill = "white"), 
-        panel.grid.major.x = element_line(colour = "grey"),
-        axis.ticks.y = element_blank(), 
-        axis.text.y  = element_blank(), 
-        plot.margin = margin(3,3,3,6, "cm")) +
+t <- df.full %>%
+  ggplot(
+    aes(y = order, x = cumsum, fill = c_alph, color = c_alph)
+    ) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  geom_colh(alpha = .8) +             # Horizontal columns from ggstance
+  coord_cartesian(clip = "off") +
+  labs(
+    x = "Published Articles",
+    y = "",
+    title = "Hall of Fame: Most Publications",
+    subtitle = "Authorship of papers published by the NBER",
+    caption = " Data: National Bureau of Economic Research (NBER) | R package 'nberwp'"
+  ) +
+  guides(fill = "none", color = "none") +
+  geom_text(
+    aes(cumsum, order, label = as.character(cumsum)),
+    hjust = -0.2
+    ) +
+  geom_text(
+    aes(0, order, label = name),
+    hjust = 1.1 , fontface = 'bold'
+    ) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major.x = element_line(colour = "grey"),
+    axis.ticks.y = element_blank(),
+    axis.text.y  = element_blank(),
+    plot.margin = margin(3, 3, 3, 6, "cm")
+  ) +
   transition_states(year, transition_length = 2, state_length = 0) +
-  geom_text(aes(x = max(cumsum), y =10, label = year_num ) ,hjust=-.5, alpha = 0.4,  col = "gray", size = 8) +
+  geom_text(
+    aes(x = max(cumsum),y = 8,label = year_num),
+    hjust = -.5, alpha = 0.4, col = "gray", size = 8
+  ) +
+  view_follow(fixed_y = c(15, 1)) +
   exit_fade() + enter_fade() +
-  view_follow(fixed_y = c(10,1), fixed_x = c(0,NA)) +
   ease_aes('linear')
 
+# one frame for every year:month
 leng <-length(unique(df.full$year))
 
-animate(t, nframes = leng,detail = 10, fps = 10,  width = 700, height = 432, rewind = FALSE, )
-anim_save()
+fin <- animate(t, nframes = leng, detail = 10, fps = 10,  width = 700, height = 700, rewind = FALSE )
+anim_save(animation = fin,filename = "NBER_barbplotrace.gif")
+
