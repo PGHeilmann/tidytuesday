@@ -96,7 +96,7 @@ t <- df.full %>%
     x = "Published Articles",
     y = "",
     title = "Hall of Fame: Most Publications",
-    subtitle = "Authorship of papers published by the NBER",
+    subtitle = "(Co-)Authorship of papers published by the NBER",
     caption = " Data: National Bureau of Economic Research (NBER) | R package 'nberwp'"
   ) +
   guides(fill = "none", color = "none") +
