@@ -1,65 +1,164 @@
 library(tidyverse)
 library(patchwork)
 library(usmap)
+library(ggstance)
 library(cowplot)
 
 nurses <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-05/nurses.csv')
-str(nurses)
 colnames(nurses) <- str_replace_all(colnames(nurses), " ", "_")
 colnames(nurses)[1] <- "state"
 
-nurses <- nurses %>%
+nurses2020 <- nurses %>%
   filter(Year == 2020,
          state %in% us_map()$full)
 
-a1 <- plot_usmap(data = nurses, values = "Hourly_Wage_Avg", color = "black", labels = T) + 
+## First plot shoiwng the us map - top of the graphic
+a1 <- plot_usmap(data = nurses2020, values = "Hourly_Wage_Avg", color = "black", labels = T) + 
   scale_fill_gradient(low = "lightblue",
                       high = "darkblue",
                       label = scales::comma) + 
   labs(fill = "Avg. Salary",
        title = "Average Salary for Nurses per State in 2020")
 
-a2 <- plot_usmap(data = nurses, values = "Hourly_Wage_Median", color = "black", labels = T) + 
-  scale_fill_gradient(low = "lightblue",
-                      high = "darkblue",
-                      label = scales::comma) + 
-  labs(fill = "Avg. Salary",
-       title = "Average Salary for Nurses per State in 2020")
 
-
-nurses <- nurses %>% arrange(desc(Annual_Salary_Avg))
-
-test %>%  ggplot(aes(x=order, y = Annual_Salary_Avg, fill = Annual_Salary_Avg)) + geom_bar(stat = "identity") +
-        geom_text(aes(x=order, y = Annual_Salary_Avg, label = state), vjust = -1) + 
-  scale_fill_gradient(low = "lightblue", high = "darkblue", na.value = "white") +
-  theme_void() + theme(legend.position = "none")
-
-test <- rbind(head(nurses,3),NA,tail(nurses,3))
-test$order <- 1:7
-
-nrs_poor <-
-  nurses %>% mutate(
+###
+nrs_low <-
+  nurses2020 %>% mutate(
     ratio_avg_to_low = Annual_10th_Percentile / Annual_Salary_Avg,
     ratio_avg_to_high = Annual_90th_Percentile / Annual_Salary_Avg
   ) %>%
-  arrange(desc(ratio_avg_to_low))
+  arrange(desc(ratio_avg_to_low)) %>% 
+  mutate(ord = 1:51)
 
-nrs_rich <-
-  nurses %>% mutate(
+nrs_high <-
+  nurses2020 %>% mutate(
     ratio_avg_to_low = Annual_10th_Percentile / Annual_Salary_Avg,
     ratio_avg_to_high = Annual_90th_Percentile /
       Annual_Salary_Avg
   ) %>%
-  arrange(desc(ratio_avg_to_high))
+  arrange(desc(ratio_avg_to_high)) %>% 
+  mutate(ord = 1:51)
+
+nrs_low$Annual_Salary_Avg[1];nrs_low$Annual_10th_Percentile[1];nrs_low$ratio_avg_to_low[1]
+nrs_high$Annual_Salary_Avg[1];nrs_high$Annual_90th_Percentile[1];nrs_high$ratio_avg_to_high[1]
+
+head(nrs_low) %>% ggplot(data = nrs_low)+ geom_boxplot(aes(ymax=Annual_90th_Percentile, 
+                                                                             ymin = Annual_10th_Percentile, 
+                                                                             upper = Annual_25th_Percentile,
+                                                                             lower = Annual_75th_Percentile,
+                                                                             middle = Annual_Salary_Median, 
+                                                                             group = state, x = state))
 
 head(nrs_high)
 head(nrs_low)
 
-nrs_low[1:5,] %>% 
-ggplot(aes(x=state   , y = ratio_avg_to_high, fill = ratio_avg_to_high)) + geom_bar(stat = "identity") +
-  geom_text(aes(x=state   , y = ratio_avg_to_high, label = state), vjust = -1) + 
-  scale_fill_gradient(low = "lightblue", high = "darkblue", na.value = "white") +
-  theme_void() + theme(legend.position = "none")
+
+my.color <- colorRampPalette(c("lightblue","darkblue"))(3)
+
+# Highest difference between mean and 90th percentile
+head(nrs_high,3) %>% mutate(ratio_avg_to_high = (ratio_avg_to_high-1)*100) %>% 
+  ggplot(aes(x=as.factor(ord), y = ratio_avg_to_high)) + 
+  geom_col(fill = c("skyblue3","skyblue2","skyblue1")) + 
+  labs( x = "", y = "", title = "Increase between Avg. Salary and 90th-Percentile") +
+  geom_text(aes(x=as.factor(ord),y=ratio_avg_to_high,label=state), vjust = -.5, hjust= .5, size =10) + 
+  geom_text(aes(x=as.factor(ord),y=40-(ord*10), label= paste("#",ord)),
+            color = "white",size =10) + 
+  scale_x_discrete(limits = c("3","2","1")) +
+  scale_y_continuous(limits = c(0,70),labels = scales::number_format(suffix = "%")) +
+  theme(panel.background = element_blank(), axis.ticks.x = element_blank(), axis.text.x = element_blank())
+
+# Lowest difference between mean and 10th percentile
+head(nrs_low,3) %>% mutate(ratio_avg_to_low = abs((ratio_avg_to_low-1)*100)) %>% 
+  ggplot(aes(x=as.factor(ord), y = ratio_avg_to_low)) + 
+  geom_col(fill = my.color) + 
+  labs( x = "", y = "", title = "Decrease between Avg. Salary and 10th-Percentile") +
+  geom_text(aes(x=as.factor(ord),y=ratio_avg_to_low,label=state), vjust = -.5, hjust= .5, size =10) + 
+  geom_text(aes(x=as.factor(ord),3, label= paste("#",ord)),
+            color = "white",size =10) + 
+  scale_x_discrete(limits = c("3","2","1")) +
+  scale_y_continuous(limits = c(0,70),labels = scales::number_format(suffix = "%")) +
+  theme(panel.background = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+
+# Lowest difference between mean and 10th percentile
+nurses_diff <- nurses2020 %>% mutate(perc_diff = ((Annual_90th_Percentile / Annual_10th_Percentile)-1)*100) %>% arrange(desc(perc_diff)) %>% mutate(ord = 1:51) 
+
+nurses_diff_s <- rbind(head(nurses_diff,5),NA,(tail(nurses_diff,5))) %>% mutate(new_ord = 1:n())
+nurses_diff_s %>% 
+ggplot(aes(x=as.factor(new_ord), y = perc_diff)) + 
+  geom_col() + 
+  labs( x = "", y = "", title = "Difference between 90th and 10th Percentile") +
+  geom_text(data= nurses_diff_s[1:5,], aes(x=12.45:8.45,y=perc_diff,label=state), vjust = -.5, hjust= 1, size =6) + 
+  geom_text(data= nurses_diff_s[c(7,9,11),], aes(x=as.factor(new_ord),y=perc_diff,label=state), vjust = -.5, hjust= .5, size =6) + 
+  geom_text(data= nurses_diff_s[c(8,10),], aes(x=as.factor(new_ord),y=perc_diff,label=state), vjust = -1.5, hjust= .5, size =6) + 
+  geom_text(aes(x=7,y=40,label="..."), size =8) + 
+  geom_text(aes(x=as.factor(new_ord),y = perc_diff/2, label= paste("#",ord)),color = "white",size =6) + 
+#  geom_hline(aes(yintercept=0)) +
+  scale_x_discrete(limits = as.character(12:1)) +
+  scale_y_continuous(limits = c(0,150), labels = scales::number_format(prefix= "+",suffix = "%")) +
+  theme(panel.background = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(), panel.grid.major.y = element_line(color = "grey"))
+
+nurses2020$Annual_90th_Percentile[1] /
+nurses2020$Annual_10th_Percentile[1]
+
+nurses2000 <- nurses %>%
+  filter(Year == 2000,
+         state %in% us_map()$full)
+nurses2015 <- nurses %>%
+  filter(Year == 2015,
+         state %in% us_map()$full)
+
+nurse_compare <-
+  nurses2000 %>% 
+  select(state, Hourly_Wage_Avg) %>%
+  left_join(nurses2020, by = "state", suffix = c("00", "20")) %>% 
+  mutate(improvement_00 = ((Hourly_Wage_Avg20 / Hourly_Wage_Avg00)-1)*100) %>% 
+  select(state, improvement_00, Hourly_Wage_Avg20, Hourly_Wage_Avg00) %>% 
+  arrange(desc(improvement_00))
+
+nurse_compare <-
+  nurses2015 %>% 
+  select(state, Hourly_Wage_Avg) %>%
+  right_join(nurse_compare, by = "state", suffix = c("15", "20")) %>% 
+  mutate(improvement_15 = ((Hourly_Wage_Avg20 / Hourly_Wage_Avg)-1)*100) %>% 
+  arrange(desc(improvement_00)) %>% 
+  mutate(ord = 1:51)
+
+
+my.color <- colorRampPalette(c("dodgerblue3","dodgerblue1"))(10)
+my.color2 <- colorRampPalette(c("dodgerblue4","dodgerblue3"))(10)
+head(nurse_compare,10) %>% ggplot(aes(x=as.factor(ord), y = improvement_00)) + 
+  geom_col(fill = my.color) + 
+  geom_col(aes(y = improvement_15), fill = my.color2) +
+  labs( x = "", y = "", title = "Improvement since 2000") +
+  geom_text( aes(x=11:2,y=seq(130,90,-4.4),label=state),  hjust= .5, size =6) + 
+  geom_text(aes(x=as.factor(ord),y = improvement_00/2, label= paste("#",ord)),color = "white",size =6) + 
+  #  geom_hline(aes(yintercept=0)) +
+  scale_x_discrete(limits = as.character(11:0)) +
+  scale_y_continuous(limits = c(0,150), labels = scales::number_format(prefix= "+",suffix = "%")) +
+  theme(panel.background = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(), 
+        panel.grid.major.y = element_line(color = "grey"))
+
+
+num = c()
+subsub <- subset(nurses, state == "California")
+for(i in 1:20){
+  old <- subset(subsub, Year == (1999 + i))
+  new <- subset(subsub, Year == (2000 + i))
+  
+  num = c(num, (new$Hourly_Wage_Avg - old$Hourly_Wage_Avg))
+}
+subsub$Hourly_Wage_Avg
+
+sum(num)
+percs <- (num/sum(num))*100
+sum(percs)
+
 
 
 cowplot::
