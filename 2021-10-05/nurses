@@ -1,0 +1,67 @@
+library(tidyverse)
+library(patchwork)
+library(usmap)
+library(cowplot)
+
+nurses <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-05/nurses.csv')
+str(nurses)
+colnames(nurses) <- str_replace_all(colnames(nurses), " ", "_")
+colnames(nurses)[1] <- "state"
+
+nurses <- nurses %>%
+  filter(Year == 2020,
+         state %in% us_map()$full)
+
+a1 <- plot_usmap(data = nurses, values = "Hourly_Wage_Avg", color = "black", labels = T) + 
+  scale_fill_gradient(low = "lightblue",
+                      high = "darkblue",
+                      label = scales::comma) + 
+  labs(fill = "Avg. Salary",
+       title = "Average Salary for Nurses per State in 2020")
+
+a2 <- plot_usmap(data = nurses, values = "Hourly_Wage_Median", color = "black", labels = T) + 
+  scale_fill_gradient(low = "lightblue",
+                      high = "darkblue",
+                      label = scales::comma) + 
+  labs(fill = "Avg. Salary",
+       title = "Average Salary for Nurses per State in 2020")
+
+
+nurses <- nurses %>% arrange(desc(Annual_Salary_Avg))
+
+test %>%  ggplot(aes(x=order, y = Annual_Salary_Avg, fill = Annual_Salary_Avg)) + geom_bar(stat = "identity") +
+        geom_text(aes(x=order, y = Annual_Salary_Avg, label = state), vjust = -1) + 
+  scale_fill_gradient(low = "lightblue", high = "darkblue", na.value = "white") +
+  theme_void() + theme(legend.position = "none")
+
+test <- rbind(head(nurses,3),NA,tail(nurses,3))
+test$order <- 1:7
+
+nrs_poor <-
+  nurses %>% mutate(
+    ratio_avg_to_low = Annual_10th_Percentile / Annual_Salary_Avg,
+    ratio_avg_to_high = Annual_90th_Percentile / Annual_Salary_Avg
+  ) %>%
+  arrange(desc(ratio_avg_to_low))
+
+nrs_rich <-
+  nurses %>% mutate(
+    ratio_avg_to_low = Annual_10th_Percentile / Annual_Salary_Avg,
+    ratio_avg_to_high = Annual_90th_Percentile /
+      Annual_Salary_Avg
+  ) %>%
+  arrange(desc(ratio_avg_to_high))
+
+head(nrs_high)
+head(nrs_low)
+
+nrs_low[1:5,] %>% 
+ggplot(aes(x=state   , y = ratio_avg_to_high, fill = ratio_avg_to_high)) + geom_bar(stat = "identity") +
+  geom_text(aes(x=state   , y = ratio_avg_to_high, label = state), vjust = -1) + 
+  scale_fill_gradient(low = "lightblue", high = "darkblue", na.value = "white") +
+  theme_void() + theme(legend.position = "none")
+
+
+cowplot::
+ggdraw( plot_grid(a1,a2) ) +
+  annotate(geom = "rect" , xmin = 0.81 , xmax = 0.96 , ymin = 0.82 , ymax = 0.92, fill = colorspace::darken("#2C3E4C", 0.25))
