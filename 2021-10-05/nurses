@@ -380,8 +380,15 @@ ggdraw() +
 
 #####################################################
 
+
+#####################################################
+library(showtext)
+#https://fonts.google.com/
+font_add_google("Ubuntu")
+fnt <- "Ubuntu"
+showtext_auto()
 a1 <-
-a1 + 
+  a1 + 
   # geom_hline(yintercept = 0) + 
   # geom_hline(yintercept = -500000) +
   # geom_hline(yintercept = 500000) +  
@@ -392,51 +399,76 @@ a1 +
   # geom_vline(xintercept = -500000)  +
   # geom_vline(xintercept = -2000000)  +
   
-  annotate("curve", x = -2000000, xend = -1800000, y = -1300000, yend = -1000000,
-           curvature = .3, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = -2000000,  y = -1300000, label = "Highest Avg. Salary: CA\nHighest No. of RN: CA" ) +
-  
-  annotate("curve", x = 1500000, xend = 1300000, y = -2400000, yend = -1400000,
+  annotate("curve", x = -2200000, xend = -2000000, y = -1200000, yend = -1000000,
+           curvature = -.3, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
+  annotate("text", x = -2500000,  y = -1300000, label = "California:\nHighest avg. salary\nHighest no. of RN\nLowest increase in salary\nover the last 20 years", vjust = 1, hjust = 0 , family = fnt) +
+
+  annotate("curve", x = 1500000, xend = 1300000, y = -2350000, yend = -1400000,
            curvature = -.1, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = 1500000,  y = -2400000, label = "Lowest Avg. Salary: AL" ) + 
+  annotate("text", x = 1500000,  y = -2400000, label = "Alabama:\nLowest avg. salary" ,vjust = 1, hjust = 0 , family = fnt) + 
   
   annotate("curve", x = 1000000, xend = 1000000, y = -2000000, yend = -1400000,
            curvature = .2, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = 1000000,  y = -2000000, label = "Lowest 90th Percentile: MI" ) +
+  annotate("text", x = 800000,  y = -2050000, label = "Mississippi:\nLowest possible salaries",vjust = 1, hjust = 0 , family = fnt) +
   
-  annotate("curve", x = 2500000, xend = 2400000, y = -110000, yend = 60000,
-           curvature = .25, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = 2500000,  y = -110000, label = "Biggest disparity: MA" ) +
+  annotate("curve", x = 2750000, xend = 2400000, y = 150000, yend = 60000,
+           curvature = -1, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
+  annotate("text", x = 2750000,  y = 300000, label = "Massachusets:\nHighest salary disparity",vjust = 1, hjust = 0 , family = fnt) +
   
-  annotate("curve", x = -1000000, xend = -500000, y = 800000, yend = 0,
-           curvature = .25, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = -1000000,  y = 800000, label = "Lowest No. of RN: WY" ) +
+  annotate("curve", x = -900000, xend = -500000, y = 600000, yend = -100000,
+           curvature = .3, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
+  annotate("text", x = -1000000,  y = 800000, label = "Wyoming:\nLowest total no. of RN" ,vjust = 1, hjust = 0 , family = fnt) +
   
-  annotate("curve", x = 500000, xend = 0, y = 500000, yend = 0,
+  annotate("curve", x = 500000, xend = 0, y = 550000, yend = 0,
            curvature = .4, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = 500000,  y = 500000, label = "Highest relative share of RN: SD" ) +
+  annotate("text", x = 510000,  y = 600000, label = "South Dakota:\nMost RN to inhabitants",vjust = 1, hjust = 0 ,family=fnt ) +
   
   annotate("curve", x = -200000, xend = 0, y = 600000, yend = 250000,
            curvature = .5, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = -200000,  y = 600000, label = "Lowest Disparity: ND" ) +
+  annotate("text", x = -250000,  y = 800000, label = "North Dakota:\nLowest salary disparity" ,vjust = 1, hjust = 0 , family = fnt) +
   
-  annotate("curve", x = 2300000, xend = 1970000, y = -600000, yend = -420000,
-           curvature = -.7, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
-  annotate("text", x = 2300000,  y = -600000, label = "Lowest relative share of RN: DC" ) 
+  annotate("curve", x = 2200000, xend = 1970000, y = -1000000, yend = -420000,
+           curvature = .7, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
+  annotate("text", x = 2000000,  y = -1100000, label = "District of Columbia:\nLeast RN to inhabitants",vjust = 1, hjust = 0 , family = fnt)  +
+  
+  annotate("curve", x = 2500000, xend = 2100000, y = -450000, yend = -415000,
+           curvature = -.2, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
+  annotate("text", x = 2550000,  y = -500000, label = "Delaware:\nLowest increase in salary\nover the last 20 years",vjust = 0, hjust = 0 , family = fnt) +
+    
+  annotate("text", x = 2550000,  y = -500000, label = "Delaware:\nLowest increase in salary\nover the last 20 years",vjust = 0, hjust = 0 , family = fnt) 
 
+  ggdraw(a1) + annotate("text",.1,.9,label = "Nurses 2020",size = 10)
 
 which.min(nurses2020$Annual_Salary_Avg)
 which.max(nurses2020$Annual_Salary_Avg)
 
-which.max(nurses2020$Annual_90th_Percentile); nurses2020[5,]
+which.max(nurses2020$Annual_90th_Percentile); nurses2020[5,1]
 
-which.min(nurses2020$Annual_10th_Percentile); nurses2020[25,]
+which.min(nurses2020$Annual_10th_Percentile); nurses2020[25,1]
 
-which.min(nurses2020$Total_Employed_RN); nurses2020[51,]
-which.max(nurses2020$Total_Employed_RN); nurses2020[5,]
+which.min(nurses2020$Total_Employed_RN); nurses2020[51,1]
+which.max(nurses2020$Total_Employed_RN); nurses2020[5,1]
 
-which.max(nurses2020$Location_Quotient); nurses2020[42,]
-which.min(nurses2020$Location_Quotient); nurses2020[9,]
+which.max(nurses2020$Location_Quotient); nurses2020[42,1]
+which.min(nurses2020$Location_Quotient); nurses2020[9,1]
 
-which.max(nurses_diff$perc_diff);nurses_diff[1,]
-which.min(nurses_diff$perc_diff);nurses_diff[51,]
+which.max(nurses_diff$perc_diff);nurses_diff[1,1]
+which.min(nurses_diff$perc_diff);nurses_diff[51,1]
+
+which.max(nurse_compare$improvement_00);nurse_compare[1,1]
+which.min(nurse_compare$improvement_00);nurse_compare[51,1]
+
+t <- plot_grid(t1,t2, ncol = 2,scale = 1, align = "h", axis = "b")
+p <- plot_grid(a1,t, ncol = 1, align = "v", axis = "b", rel_heights = c(.8,.2))
+
+ggdraw() + 
+  geom_rect(aes(xmin = 0, xmax = 1, ymin = 0, ymax = .3),
+                     fill = "gray90") +
+  draw_plot(p,  0.05, 0.1, .9, .8) + theme()
+   
+  draw_plot(a3, 0,0,.7,.2) +
+  draw_plot(t,  0.7, 0.2, .29, .5) +
+  draw_plot(p,  .7, .7, .3, .3) 
+  
+  a1
+  ggsave("my_test.png", width = 30, height = 20, units = "cm", device = "png",dpi = 72, scale = 2)
