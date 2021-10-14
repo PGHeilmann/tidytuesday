@@ -378,8 +378,6 @@ ggdraw() +
   draw_plot(p,  .7, .7, .3, .3) 
 
 
-#####################################################
-
 
 #####################################################
 library(showtext)
@@ -387,6 +385,20 @@ library(showtext)
 font_add_google("Ubuntu")
 fnt <- "Ubuntu"
 showtext_auto()
+
+a1 <-   plot_usmap(data = nurses2020, values = "Hourly_Wage_Avg", color = "black", labels = F ) + 
+  scale_fill_gradient(low = "lightblue",
+                      high = "darkblue") + xlim(-4000000,4000000) + ylim(-4000000,2000000) +
+  labs(fill = "Avg. Hourly \nWage") +
+  theme(legend.position = "none",#c(0.95,.3), 
+        legend.direction="vertical", 
+        legend.text = element_text(size = 11),
+        legend.key.height = unit(1,"cm"),
+        legend.key.width = unit(.5, 'cm'),
+        legend.title = element_text(size = 14),
+        legend.background = element_blank(),
+        plot.margin = margin(0,0,0,0))
+a1
 a1 <-
   a1 + 
   # geom_hline(yintercept = 0) + 
@@ -402,7 +414,7 @@ a1 <-
   annotate("curve", x = -2200000, xend = -2000000, y = -1200000, yend = -1000000,
            curvature = -.3, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
   annotate("text", x = -2500000,  y = -1300000, label = "California:\nHighest avg. salary\nHighest no. of RN\nLowest increase in salary\nover the last 20 years", vjust = 1, hjust = 0 , family = fnt) +
-
+  
   annotate("curve", x = 1500000, xend = 1300000, y = -2350000, yend = -1400000,
            curvature = -.1, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
   annotate("text", x = 1500000,  y = -2400000, label = "Alabama:\nLowest avg. salary" ,vjust = 1, hjust = 0 , family = fnt) + 
@@ -434,10 +446,22 @@ a1 <-
   annotate("curve", x = 2500000, xend = 2100000, y = -450000, yend = -415000,
            curvature = -.2, arrow = arrow(length = unit(.01, "npc"), type = "closed")) +
   annotate("text", x = 2550000,  y = -500000, label = "Delaware:\nLowest increase in salary\nover the last 20 years",vjust = 0, hjust = 0 , family = fnt) +
-    
+  
   annotate("text", x = 2550000,  y = -500000, label = "Delaware:\nLowest increase in salary\nover the last 20 years",vjust = 0, hjust = 0 , family = fnt) 
 
-  ggdraw(a1) + annotate("text",.1,.9,label = "Nurses 2020",size = 10)
+subtl.txt <- "This graphic is based on the Registered Nursing Labor Stats (1998-2020) dataset accessible via data.world. The US map is colored according to
+ the average annual salary of registered nurses (RN) of each state. Darker shades of blue represent higher salaries."
+btm.txt <- "Source: data.world/zendoll27/registered-nursing-labor-stats-1998-2020   |   Graphic created by Philipp Heilmann in R"
+
+f <- ggdraw(a1,xlim = c(0.2,.8),ylim = c(0,1),clip = "off") + annotate("text",.2,.95,label = "Nurses in the US",size = 14, hjust = 0) + 
+  annotate("text",.2,.9,label = subtl.txt,size = 7, hjust = 0) + 
+  annotate("text",.5,.025,label = btm.txt,size = 5, hjust = 0) + 
+  geom_rect(aes(xmin = 0, xmax = 1, ymin = 0, ymax = .25), fill = "lightblue", alpha = .2) +
+  draw_plot(t1,x = .35, y = .1,width = .1,height = .1, scale =2) +
+  draw_plot(t2,x = .55, y = .1,width = .1,height = .1, scale =2)  +  theme(plot.margin = margin(0,0,0,0))
+
+ggsave("my_test.png",f, width = 21, height = 15, units = "cm", device = "png",dpi = 100, scale = 2.5)
+
 
 which.min(nurses2020$Annual_Salary_Avg)
 which.max(nurses2020$Annual_Salary_Avg)
@@ -463,12 +487,12 @@ p <- plot_grid(a1,t, ncol = 1, align = "v", axis = "b", rel_heights = c(.8,.2))
 
 ggdraw() + 
   geom_rect(aes(xmin = 0, xmax = 1, ymin = 0, ymax = .3),
-                     fill = "gray90") +
+            fill = "gray90") +
   draw_plot(p,  0.05, 0.1, .9, .8) + theme()
-   
-  draw_plot(a3, 0,0,.7,.2) +
+
+draw_plot(a3, 0,0,.7,.2) +
   draw_plot(t,  0.7, 0.2, .29, .5) +
   draw_plot(p,  .7, .7, .3, .3) 
-  
-  a1
-  ggsave("my_test.png", width = 30, height = 20, units = "cm", device = "png",dpi = 72, scale = 2)
+
+a1
+ggsave("my_test.png", width = 30, height = 20, units = "cm", device = "png",dpi = 72, scale = 2)
