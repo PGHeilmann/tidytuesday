@@ -4,6 +4,13 @@ This repository contains all my contributions to the #TidyTuesday. Tidytuesday i
 
 ***
 
+### 2021-10-05
+**Nurses in the US**
+
+This is a test text that contains words Lorem ipsum and so on
+
+![Gif from TidyTuesday 2021-09-28](2021-10-05/my_test.png)***
+
 ### 2021-09-28
 **NBER Papers**
 
