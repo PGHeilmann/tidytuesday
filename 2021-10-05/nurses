@@ -192,5 +192,5 @@ f <- ggdraw(a1,xlim = c(0.2,.8),ylim = c(0,1),clip = "off") +
   draw_plot(t1,x = .35, y = .1,width = .1,height = .1, scale =2) +
   draw_plot(t2,x = .55, y = .1,width = .1,height = .1, scale =2)  +  theme(plot.margin = margin(0,0,0,0))
 
-ggsave("US_nurses_small.png",f, width = 14, height = 10, units = "cm", device = "png",dpi = 90, scale = 4)
-ggsave("US_nurses_large.png",f, width = 30, height = 20, units = "cm", device = "png",dpi = 72, scale = 2.5)
+ggsave("US_nurses.png",f, width = 14, height = 10, units = "cm", device = "png",dpi = 90, scale = 4)
+
