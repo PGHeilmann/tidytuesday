@@ -7,9 +7,9 @@ This repository contains all my contributions to the #TidyTuesday. Tidytuesday i
 ### 2021-10-05
 **Nurses in the US**
 
-This is a test text that contains words Lorem ipsum and so on
+Data from data.world that contains detailed information on the employment situation of registered nurses in the US. Data contains information on wage/salary distribution, location quotients (industry concentration) and number of employed nurses of all US states from 1998 to 2020.
 
-![Gif from TidyTuesday 2021-09-28](2021-10-05/my_test.png)***
+![Gif from TidyTuesday 2021-09-28](2021-10-05/US_nurses_small.png)***
 
 ### 2021-09-28
 **NBER Papers**
