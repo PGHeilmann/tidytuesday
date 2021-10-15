@@ -9,7 +9,7 @@ This repository contains all my contributions to the #TidyTuesday. Tidytuesday i
 
 Data from data.world that contains detailed information on the employment situation of registered nurses in the US. Data contains information on wage/salary distribution, location quotients (industry concentration) and number of employed nurses of all US states from 1998 to 2020.
 
-![Gif from TidyTuesday 2021-09-28](2021-10-05/US_nurses_small.png)***
+![Gif from TidyTuesday 2021-10-05](2021-10-05/US_nurses.png)***
 
 ### 2021-09-28
 **NBER Papers**
