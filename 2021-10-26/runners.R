@@ -1,8 +1,16 @@
 library(tidyverse)
+library(showtext)
+library(patchwork)
+library(ggtext)
+library(RColorBrewer)
+library(colorspace)
+library(cowplot)
+
 
 # ultra_rankings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/ultra_rankings.csv')
 race <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-10-26/race.csv')
 
+# I use the original raw version because tidy dataset misses a lot of times
 ultra_rankings <-  read_csv('https://raw.githubusercontent.com/BjnNowak/UltraTrailRunning/main/ranking.csv', col_types = c("ddccdcc"))
 ultra_rankings$Time <- parse_time(ultra_rankings$Time)
 
@@ -48,6 +56,7 @@ rank_and_race <- rank_and_race %>%
   left_join(race_Qs, by = "race_year_id") %>% 
   drop_na()
 
+# Looks bad but I tried a different idea first so there it still is this way
 T10 <- rank_and_race %>% filter(Rank.x <= top10) %>% group_by(distance) %>% summarise_at("time",mean) %>% mutate(Type = "T10")
 Q10 <- rank_and_race %>% filter(Rank.x > top10 & Rank.x <= q10) %>% group_by(distance) %>% summarise_at("time",mean) %>% mutate(Type = "Q10")
 Q25 <- rank_and_race %>% filter(Rank.x > q10 & Rank.x <= q25) %>% group_by(distance) %>% summarise_at("time",mean) %>% mutate(Type = "Q25")
@@ -56,12 +65,12 @@ Q75 <- rank_and_race %>% filter(Rank.x > q50 & Rank.x <= q75) %>% group_by(dista
 Q90 <- rank_and_race %>% filter(Rank.x > q75 & Rank.x <= q90) %>% group_by(distance) %>% summarise_at("time",mean) %>% mutate(Type = "Q90")
 Qmax <- rank_and_race %>% filter(Rank.x > q90) %>% group_by(distance) %>% summarise_at("time",mean) %>% mutate(Type = "Qmax")
 
+# Merge it into one frame so that using stat_smooth is easier
 full.df <- rbind(Qmax,Q90,Q75,Q50,Q25,Q10,T10)
 full.df$Type <- fct_inorder(full.df$Type)
 
+# Tibbles that are used for background design and so on
 ymin <- full.df %>% group_by(Type) %>% filter(distance == 175) %>% select("time")
-
-ymin$time
 ymin$y <- seq(32,14,-3)
 
 background <- tibble(x = seq(155,174,1),
@@ -71,39 +80,40 @@ background <- tibble(x = seq(155,174,1),
 background.txt <- tibble(x = seq(155,175,2),
                          y = rep(58,11))
 
-library(RColorBrewer);library(colorspace)
+# Color schemes
 cols1 <- colorRampPalette(c("brown","grey90","gold"))(7)
 cols2 <- colorRampPalette(c("brown","gold"))(7)
 dcols <- lighten(cols2,amount = .1)
 
 p <- 
 ggplot(full.df, aes(x = distance, y = time, fill = Type)) +   
+  # Background
   geom_rect(data = background,inherit.aes = F, aes( xmin=x,xmax=xend,ymin=0,ymax=y, group = co), fill = background$co) +
   geom_segment(aes(x=155,xend=155,y= 0,yend= 58), col = "grey30", lty = 1, lwd = 1) +
   geom_text(data = background.txt,inherit.aes = F, aes(x=x,y=y, label = x), col = "grey70", vjust = 0,hjust = 0.5, nudge_y = .5) +
-  geom_text(aes(x=178,y= 58, label = "Distance in km"), col = "grey70", hjust = 0.5, nudge_y = .5, size = 6, fontface = "bold") +
-  
+  geom_text(aes(x=178,y= 58, label = "Distance in km"), col = "grey70", hjust = 0.5,  vjust = 0, nudge_y = .5, size = 6, fontface = "bold") +
+  # 48 Hour line and area plots
   geom_segment(aes(x=153,xend=174,y=48,yend=48), col = "grey90", lty = 2,lwd = 1) +
   stat_smooth(geom = 'area', method = 'loess', span = 1/10, alpha = .9) + 
   stat_smooth(geom = 'line', method = 'loess', span = 1/10, aes(col = Type), lwd = 1, lty = 1) + 
-
+  # Legend 
   geom_curve(data = ymin, inherit.aes = F,aes(x = 175, y = ymin$time, xend = 178, yend = ymin$y),curvature = .2, col=dcols, lwd = 1) +
   geom_point(data = ymin, inherit.aes = F,aes(x = 178, y = ymin$y), col=dcols, size = 2) +
   geom_text( data = ymin, inherit.aes = F,aes(x = 178, y = ymin$y, label = rev(c("Top 10","Q10","Q25","Q50","Q75","Q90","Qmax"))),
             col=dcols, fontface = "bold", hjust = 0, nudge_x = .5, size = 6) +
-  
-  geom_segment(aes(x=153,xend=174,y= 0,yend= 0), col = "grey90", lty = 2, lwd = 1) +
+  # Axis lines
+  geom_segment(aes(x=153,xend=155,y= 0,yend= 0), col = "grey90", lty = 2, lwd = 1) +
   geom_segment(aes(x=153,xend=174,y=36,yend=36), col = "grey90", lty = 2) +
   geom_segment(aes(x=153,xend=174,y=24,yend=24), col = "grey90", lty = 2) +
   geom_segment(aes(x=153,xend=174,y=12,yend=12), col = "grey90", lty = 2) +
-  
+  # Axis text
   geom_text(aes(x=153,y=48, label = "48 hours"), col = "grey90", vjust = 0,hjust = 0, nudge_y = .5) +
   geom_text(aes(x=153,y=36, label = "36 hours"), col = "grey90", vjust = 0,hjust = 0, nudge_y = .5) +
   geom_text(aes(x=153,y=24, label = "24 hours"), col = "grey90", vjust = 0,hjust = 0, nudge_y = .5) +
   geom_text(aes(x=153,y=12, label = "12 hours"), col = "grey90", vjust = 0,hjust = 0, nudge_y = .5) +
   geom_text(aes(x=153,y=0, label = "0"), col = "grey90", vjust = 0, hjust = 0, nudge_y = .5) +
   
-  xlim(c(150,180)) + # ylim(c(0,70)) +
+  xlim(c(150,180)) +
   scale_fill_manual(values = cols2) +
   scale_color_manual(values = dcols) +
   theme_void() + 
@@ -111,25 +121,32 @@ ggplot(full.df, aes(x = distance, y = time, fill = Type)) +
          plot.background = element_rect(fill = "grey20", colour = NA ) )
 
 
-library(patchwork)
-library(ggtext)
+
+font <- "kanit"
+font_add_google(name = "Kanit", family = "kanit")
+showtext_auto(enable = T)
+showtext_opts(dpi = 200)
 
 f <-
-p + plot_annotation(title = "How long does it take different runners to complete an ultra running event?",
-                    subtitle = "Ultra running describes all races longer than a marathon (42 km). <br>
-                    Over 300 different events with 21 different running distances were analysed in respect to the average time required to finish the race.<br>
+p + plot_annotation(title = toupper("III How long does it take different runners to complete an ultra running event?"),
+                    subtitle = "<span style = 'font-size:12pt'>
+                    <br>
+                    Ultra running is a type of racing competition longer than a marathon (42 km). <br>
+                    Over 300 different events with 21 different running distances were used  to calculate the average time required to finish a race.<br>
                     Runners were split into different groups according to their finishing rank. <br> <br>
-                    <b> Example:</b> <br>
+                    <b> How to read:</b> <br>
                     <b style='color:#FFDB51;'>Top 10</b> depicts the average time required to finish a race for ranks 1 to 10 over all races of the same distance.<br>
                     <b style='color:#F6C021;'>Q10</b> is the average time required to finish for the best ranking 10%, excluding the <b style='color:#FFDB51;'>Top 10</b>.<br>
-                    <b style='color:#EAA528;'>Q25</b> is the average time required to finish for the best ranking 25%, excluding the <b style='color:#F6C021;'>Q10</b> and the <b style='color:#FFDB51;'>Top 10</b> and so on. <br>",
-                    caption = "Graphic by Philipp Heilmann | Source: Benjamin Nowak/International Trail Running Association (ITRA)", 
-                    theme = theme(plot.title = element_markdown(size = 18, hjust = 0, face = "bold", color = "grey90"),
-                                  plot.subtitle = element_markdown(size = 14, hjust = 0, color = "grey90"),
-                                  plot.caption  = element_markdown(size = 14, color = "grey90"),
+                    <b style='color:#EAA528;'>Q25</b> is the average time required to finish for the best ranking 25%, excluding the <b style='color:#F6C021;'>Q10</b> and the <b style='color:#FFDB51;'>Top 10</b> and so on. <br></span>",
+                    caption = "by Philipp Heilmann | Source: Benjamin Nowak/International Trail Running Association (ITRA)", 
+                    theme = theme(plot.title = element_text(hjust = 0, size = 20,lineheight =2, family = font, face = "bold.italic", color = "grey90"),
+                                  plot.subtitle = element_markdown( color = "grey90",lineheight = 1.5 ),
+                                  plot.caption  = element_text(size = 10, color = "grey90"),
                                   plot.background = element_rect(fill = "grey20"),
                                   plot.margin = margin(1,1,1,1,"cm")
                                   ))
 
-ggsave(filename = "runners.png",f, dpi = 200, height = 12, width = 16)
+f <- ggdraw(f) + draw_image("stickfigure.png", x = .71, y = .085, width = .075, height = .075)
+
+ggsave(device = "png",filename = "runners.png",f, dpi = 200, height = 12, width = 16)
 
