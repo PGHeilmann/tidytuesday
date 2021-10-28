@@ -8,7 +8,7 @@ This repository contains all my contributions to the #TidyTuesday. Tidytuesday i
 ### 2021-10-19
 **Ultra Trail Running**
 
-This dataset contains data of thousands of runners participating in ultra trail races. These are races longer than a marathon. I was interested in the especially long races (>100 km) and how long it takes different runners to finish them. I rempved all races that had an uncommon distance and I removed all runners that did not finish a race.
+This dataset contains data of thousands of runners participating in ultra trail races. These are races longer than a marathon. I was interested in the especially long races (>100 km) and how long it takes different runners to finish them. I removed all races that had an uncommon distance and I removed all runners that did not finish a race.
 
 ![png from TidyTuesday 2021-10-26](2021-10-26/runners.png)
 
