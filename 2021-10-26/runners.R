@@ -129,7 +129,7 @@ showtext_opts(dpi = 200)
 
 f <-
 p + plot_annotation(title = toupper("III How long does it take different runners to complete an ultra running event?"),
-                    subtitle = "<span style = 'font-size:12pt'>
+                    subtitle = "<span style = 'font-size:15pt'>
                     <br>
                     Ultra running is a type of racing competition longer than a marathon (42 km). <br>
                     Over 300 different events with 21 different running distances were used  to calculate the average time required to finish a race.<br>
@@ -139,9 +139,9 @@ p + plot_annotation(title = toupper("III How long does it take different runners
                     <b style='color:#F6C021;'>Q10</b> is the average time required to finish for the best ranking 10%, excluding the <b style='color:#FFDB51;'>Top 10</b>.<br>
                     <b style='color:#EAA528;'>Q25</b> is the average time required to finish for the best ranking 25%, excluding the <b style='color:#F6C021;'>Q10</b> and the <b style='color:#FFDB51;'>Top 10</b> and so on. <br></span>",
                     caption = "by Philipp Heilmann | Source: Benjamin Nowak/International Trail Running Association (ITRA)", 
-                    theme = theme(plot.title = element_text(hjust = 0, size = 20,lineheight =2, family = font, face = "bold.italic", color = "grey90"),
+                    theme = theme(plot.title = element_text(hjust = 0, size = 22,lineheight =2, family = font, face = "bold.italic", color = "grey90"),
                                   plot.subtitle = element_markdown( color = "grey90",lineheight = 1.5 ),
-                                  plot.caption  = element_text(size = 10, color = "grey90"),
+                                  plot.caption  = element_text(size = 12, color = "grey90"),
                                   plot.background = element_rect(fill = "grey20"),
                                   plot.margin = margin(1,1,1,1,"cm")
                                   ))
@@ -149,4 +149,5 @@ p + plot_annotation(title = toupper("III How long does it take different runners
 f <- ggdraw(f) + draw_image("stickfigure.png", x = .71, y = .085, width = .075, height = .075)
 
 ggsave(device = "png",filename = "runners.png",f, dpi = 200, height = 12, width = 16)
+
 
